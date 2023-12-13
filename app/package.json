@@ -5,7 +5,8 @@
   "module": "../dist/timepicker-ui.esm.js",
   "types": "./src/timepicker/index.d.ts",
   "files": [
-    "dist/*"
+    "dist/*",
+    "src/*"
   ],
   "scripts": {
     "build": "webpack && rollup -c",
