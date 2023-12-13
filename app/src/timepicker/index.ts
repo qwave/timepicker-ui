@@ -16,9 +16,6 @@ import {
   checkDisabledHoursAndMinutes,
   checkedDisabledValuesInterval,
 } from './utils/disable';
-import './styles/main.scss';
-import './styles/theme.scss';
-import './styles/theme-m3.scss';
 import variables from './styles/variables.scss';
 import { options as optionsDefault } from './utils/options';
 import type { OptionTypes } from './utils/types';

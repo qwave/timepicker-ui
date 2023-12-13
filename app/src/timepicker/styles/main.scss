@@ -1,5 +1,3 @@
-@import './variables.scss';
-
 .timepicker-ui {
   * {
     box-sizing: border-box !important;
@@ -278,7 +276,7 @@
     &:hover,
     &.active {
       color: $purple;
-      background-color: #ece0fd;
+      background-color: lighten($purple, 37%);
     }
 
     &::-webkit-outer-spin-button,
@@ -367,7 +365,7 @@
     &:hover,
     &.active {
       color: $purple;
-      background-color: #ece0fd;
+      background-color: lighten($purple, 37%);
     }
 
     &.active {
