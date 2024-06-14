@@ -739,28 +739,7 @@ export default class TimepickerUI {
     });
   };
 
-  private _handleCancelButton = (): void => {
-    this._clickTouchEvents.forEach((el: string) => {
-      this.cancelButton.addEventListener(el, () => {
-        const value = getInputValue(this.input as unknown as HTMLInputElement, this._options.clockType);
-
-        createNewEvent(this._element, 'cancel', {
-          ...value,
-          hourNotAccepted: this.hour.value,
-          minutesNotAccepted: this.minutes.value,
-          type: this.activeTypeMode?.dataset.type,
-          degreesHours: this._degreesHours,
-          degreesMinutes: this._degreesMinutes,
-        });
-
-        this.close()();
-      });
-    });
-  };
-
-  private _handleOkButton = (): void => {
-    this._clickTouchEvents.forEach((el: string) => {
-      this.okButton?.addEventListener(el, () => {
+  private _acceptNewValue = (): void => {
         const { clockType, disabledTime } = this._options;
 
         const validHours = handleValueAndCheck(this.hour.value, 'hour', clockType);
@@ -820,7 +799,30 @@ export default class TimepickerUI {
         });
 
         this.close()();
+  };
+
+  private _handleCancelButton = (): void => {
+    this._clickTouchEvents.forEach((el: string) => {
+      this.cancelButton.addEventListener(el, () => {
+        const value = getInputValue(this.input as unknown as HTMLInputElement, this._options.clockType);
+
+        createNewEvent(this._element, 'cancel', {
+          ...value,
+          hourNotAccepted: this.hour.value,
+          minutesNotAccepted: this.minutes.value,
+          type: this.activeTypeMode?.dataset.type,
+          degreesHours: this._degreesHours,
+          degreesMinutes: this._degreesMinutes,
+        });
+
+        this.close()();
       });
+    });
+  };
+
+  private _handleOkButton = (): void => {
+    this._clickTouchEvents.forEach((el: string) => {
+      this.okButton?.addEventListener(el, this._acceptNewValue);
     });
   };
 
@@ -838,7 +840,7 @@ export default class TimepickerUI {
 
       if (!hasClass(target, 'timepicker-ui-modal')) return;
 
-      const value = getInputValue(this.input as unknown as HTMLInputElement, this._options.clockType);
+      /* const value = getInputValue(this.input as unknown as HTMLInputElement, this._options.clockType);
 
       createNewEvent(this._element, 'cancel', {
         ...value,
@@ -849,7 +851,8 @@ export default class TimepickerUI {
         degreesMinutes: this._degreesMinutes,
       });
 
-      this.close()();
+      this.close()(); */
+      this._acceptNewValue();
     });
   };
 
