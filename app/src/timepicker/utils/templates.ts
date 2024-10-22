@@ -28,15 +28,9 @@ export const getModalTemplate = (options: OptionTypes): string => {
         <div class="timepicker-ui-wrapper-time ${
           clockType === '24h' ? 'timepicker-ui-wrapper-time-24h' : ''
         }">
-          <input ${
-            !editable ? 'readonly' : ''
-          } class="timepicker-ui-hour" tabindex="0" type="number" min="0" max="${
-    clockType === '12h' ? '12' : '23'
-  }" />
+          <input ${!editable ? 'readonly' : ''} class="timepicker-ui-hour browser-default" tabindex="0" type="text" />
           <div class="timepicker-ui-dots">:</div>    
-          <input ${
-            !editable ? 'readonly' : ''
-          } class="timepicker-ui-minutes" tabindex="0" type="number" min="0" max="59" /> 
+          <input ${!editable ? 'readonly' : ''} class="timepicker-ui-minutes browser-default" tabindex="0" type="text" /> 
         </div>
       ${
         clockType !== '24h'
@@ -102,13 +96,11 @@ export const getMobileModalTemplate = (options: OptionTypes): string => {
       <div class="timepicker-ui-header mobile">
         <div class="timepicker-ui-select-time mobile">${mobileTimeLabel}</div>
         <div class="timepicker-ui-wrapper-time mobile">
-          <input class="timepicker-ui-hour mobile" tabindex="0" type="number" min="0" max="${
-            clockType === '12h' ? '12' : '23'
-          }" />
+          <input class="timepicker-ui-hour browser-default mobile" tabindex="0" type="text" />
           <div class="timepicker-ui-hour-text mobile">${hourMobileLabel}</div>
           <div class="timepicker-ui-dots mobile">:</div>  
           <div class="timepicker-ui-minute-text mobile">${minuteMobileLabel}</div>
-          <input class="timepicker-ui-minutes mobile" tabindex="0" type="number" min="0" max="59" /> 
+          <input class="timepicker-ui-minutes browser-default mobile" tabindex="0" type="text" /> 
         </div>
   ${
     clockType !== '24h'

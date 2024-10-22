@@ -24,6 +24,7 @@ const options: OptionTypes = {
   switchToMinutesAfterSelectHour: false,
   theme: 'basic',
   clockType: '12h',
+  allowNull: false,
   disabledTime: undefined,
   currentTime: undefined,
   focusTrap: true,

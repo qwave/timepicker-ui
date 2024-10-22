@@ -152,12 +152,13 @@ export const checkDisabledHoursAndMinutes = (
   value: (string | number)[] | string | number | undefined,
   type: 'hour' | 'minutes',
   clockType?: OptionTypes['clockType'],
+  allowNull?: OptionTypes['allowNull'],
   arrValue?: (string | number)[],
 ) => {
   if (!value) return;
 
   if (Array.isArray(value) && value.length > 0) {
-    const checkArr = value.map((e) => handleValueAndCheck(e, type, clockType));
+    const checkArr = value.map((e) => handleValueAndCheck(e, type, clockType, allowNull));
 
     if (checkArr.some((e) => e === false)) {
       return false;
@@ -165,7 +166,7 @@ export const checkDisabledHoursAndMinutes = (
 
     return true;
   } else if (typeof value === 'string' || typeof value === 'number') {
-    const isValid = handleValueAndCheck(value, type, clockType);
+    const isValid = handleValueAndCheck(value, type, clockType, allowNull);
 
     const isIncludes = arrValue?.map(Number).includes(Number(value));
 

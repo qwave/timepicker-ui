@@ -405,10 +405,11 @@ export default class TimepickerUI {
     const {
       disabledTime: { hours, minutes },
       clockType,
+      allowNull
     } = this._options;
 
-    const isValidHours = hours ? checkDisabledHoursAndMinutes(hours, 'hour', clockType) : true;
-    const isValidMinutes = minutes ? checkDisabledHoursAndMinutes(minutes, 'minutes', clockType) : true;
+    const isValidHours = hours ? checkDisabledHoursAndMinutes(hours, 'hour', clockType, allowNull) : true;
+    const isValidMinutes = minutes ? checkDisabledHoursAndMinutes(minutes, 'minutes', clockType, allowNull) : true;
 
     if (!isValidHours || !isValidMinutes) {
       throw new Error('You set wrong hours or minutes in disabled option');
@@ -439,40 +440,6 @@ export default class TimepickerUI {
     if (this.clockHand) {
       this.clockHand?.classList.add('timepicker-ui-clock-hand-24h');
     }
-  }
-
-  private _setErrorHandler() {
-    const { error, currentHour, currentMin, currentType, currentLength } = getInputValue(
-      this.input as unknown as HTMLInputElement,
-      this._options.clockType,
-    );
-
-    if (error) {
-      const newEl = document.createElement('div');
-      this.input?.classList.add('timepicker-ui-invalid-format');
-      newEl.classList.add('timepicker-ui-invalid-text');
-      newEl.innerHTML = '<b>Invalid Time Format</b>';
-
-      if (
-        this.input?.parentElement &&
-        this.input?.parentElement.querySelector('.timepicker-ui-invalid-text') === null
-      ) {
-        this.input?.after(newEl);
-      }
-
-      createNewEvent(this._element, 'geterror', {
-        error,
-        currentHour,
-        currentMin,
-        currentType,
-        currentLength,
-      });
-
-      throw new Error(`Invalid Time Format: ${error}`);
-    }
-
-    // eslint-disable-next-line no-useless-return
-    return;
   }
 
   private _removeErrorHandler() {
@@ -558,8 +525,9 @@ export default class TimepickerUI {
       return;
     }
 
+    createNewEvent(this._element, 'open', {});
+
     this._handleEscClick();
-    this._setErrorHandler();
     this._removeErrorHandler();
 
     this.openElement.forEach((openEl) => openEl?.classList.add('disabled'));
@@ -714,13 +682,9 @@ export default class TimepickerUI {
       return;
     }
 
-    let [hour, minutes, type] = this.input.value.split(':').join(' ').split(' ');
-
-    if (this.input.value.length === 0) {
-      hour = value.hour as string;
-      minutes = value.minutes as string;
+    let hour = value.hour as string,
+      minutes = value.minutes as string,
       type = value.type as string;
-    }
 
     this.hour.value = hour;
     this.minutes.value = minutes;
@@ -740,15 +704,16 @@ export default class TimepickerUI {
   };
 
   private _acceptNewValue = (): void => {
-        const { clockType, disabledTime } = this._options;
+        const { clockType, disabledTime, allowNull } = this._options;
 
-        const validHours = handleValueAndCheck(this.hour.value, 'hour', clockType);
-        const validMinutes = handleValueAndCheck(this.minutes.value, 'minutes', clockType);
+        const validHours = handleValueAndCheck(this.hour.value, 'hour', clockType, allowNull);
+        const validMinutes = handleValueAndCheck(this.minutes.value, 'minutes', clockType, allowNull);
         let checkDisable: undefined | boolean;
         const validHoursDisabled = checkDisabledHoursAndMinutes(
           this.hour.value as string,
           'hour',
           clockType,
+          allowNull,
           disabledTime?.hours,
         );
 
@@ -756,6 +721,7 @@ export default class TimepickerUI {
           this.minutes.value as string,
           'minutes',
           clockType,
+          allowNull,
           disabledTime?.minutes,
         );
 
@@ -785,10 +751,6 @@ export default class TimepickerUI {
 
           return;
         }
-
-        this.input.value = `${this.hour.value}:${this.minutes.value} ${
-          this._options.clockType === '24h' ? '' : this.activeTypeMode?.dataset.type
-        }`.trimEnd();
 
         createNewEvent(this._element, 'accept', {
           hour: this.hour.value,
@@ -985,6 +947,7 @@ export default class TimepickerUI {
     if (degrees > 360) return;
 
     this.clockHand.style.transform = `rotateZ(${degrees}deg)`;
+    this.clockHand.hidden = isNaN(degrees);
   };
 
   private _setTransformToCircleWithSwitchesMinutes = (val: string | null): void => {
@@ -993,6 +956,7 @@ export default class TimepickerUI {
     if (degrees > 360) return;
 
     this.clockHand.style.transform = `rotateZ(${degrees}deg)`;
+    this.clockHand.hidden = isNaN(degrees);
   };
 
   private _getDestructuringObj(isAmPm?: boolean) {
@@ -1165,7 +1129,7 @@ export default class TimepickerUI {
 
     if (!target || !element) return;
 
-    element.value = (target.value as string).replace(/\D+/g, '');
+    //element.value = (target.value as string).replace(/\D+/g, '');
     element.click();
   };
 
@@ -1413,6 +1377,7 @@ export default class TimepickerUI {
 
       this.minutes.value = minute >= 10 ? `${minute}` : `0${minute}`;
       this.clockHand.style.transform = `rotateZ(${deg}deg)`;
+      this.clockHand.hidden = isNaN(deg);
 
       this._degreesMinutes = deg;
 
@@ -1490,6 +1455,7 @@ export default class TimepickerUI {
         }
 
         this.clockHand.style.transform = `rotateZ(${deg}deg)`;
+        this.clockHand.hidden = isNaN(deg);
         this.hour.value = hour > 9 ? `${hour}` : `0${hour}`;
 
         this._removeCircleClockClasses24h();
@@ -1530,6 +1496,7 @@ export default class TimepickerUI {
         this._setCircleClockClasses24h();
 
         this.clockHand.style.transform = `rotateZ(${deg}deg)`;
+        this.clockHand.hidden = isNaN(deg);
         this.hour.value = `${hour}`;
 
         this._toggleClassActiveToValueTips(hour);
@@ -1620,7 +1587,7 @@ export default class TimepickerUI {
 
   private _handlerViewChange = () =>
     debounce(() => {
-      const { clockType } = this._options;
+      const { clockType, allowNull } = this._options;
 
       if (!hasClass(this.modalElement, 'mobile')) {
         this.close()();
@@ -1653,8 +1620,8 @@ export default class TimepickerUI {
           }, 300);
         }, 300);
       } else {
-        const validHours = handleValueAndCheck(this.hour.value, 'hour', clockType);
-        const validMinutes = handleValueAndCheck(this.minutes.value, 'minutes', clockType);
+        const validHours = handleValueAndCheck(this.hour.value, 'hour', clockType, allowNull);
+        const validMinutes = handleValueAndCheck(this.minutes.value, 'minutes', clockType, allowNull);
 
         if (validHours === false || validMinutes === false) {
           if (!validMinutes) {
@@ -1731,11 +1698,11 @@ export default class TimepickerUI {
 
   private _handlerClickHourMinutes = async (event: Event): Promise<void> => {
     if (!this.modalElement) return;
-    const { clockType, editable } = this._options;
+    const { clockType, editable, allowNull } = this._options;
 
     const target = event.target as HTMLDivElement;
-    const validHours = handleValueAndCheck(this.hour.value, 'hour', clockType);
-    const validMinutes = handleValueAndCheck(this.minutes.value, 'minutes', clockType);
+    const validHours = handleValueAndCheck(this.hour.value, 'hour', clockType, allowNull);
+    const validMinutes = handleValueAndCheck(this.minutes.value, 'minutes', clockType, allowNull);
 
     if (!editable) return;
 

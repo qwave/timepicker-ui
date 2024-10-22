@@ -79,7 +79,6 @@ export default class TimepickerUI {
     private _getDisableTime;
     private _removeCircleClockClasses24h;
     private _setCircleClockClasses24h;
-    private _setErrorHandler;
     private _removeErrorHandler;
     private _setOnStartCSSClassesIfClockType24h;
     private _setTheme;
